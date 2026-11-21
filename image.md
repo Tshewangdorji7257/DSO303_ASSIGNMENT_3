@@ -76,3 +76,16 @@ latency2
 
 latency3
 ![alt text](image-24.png)
+
+
+2. Validate and bootstrap (5 min)
+![alt text](image-25.png)
+![alt text](image-26.png)
+
+Next: GitHub settings
+
+In Tshewangdorji7257/DSO303_ASSIGNMENT_3 → Settings → Secrets and variables → Actions:
+
+Secrets tab → New repository secret
+![alt text](image-27.png)
+![alt text](image-28.png)
