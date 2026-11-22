@@ -235,7 +235,7 @@ resource "aws_appautoscaling_policy" "requests" {
   scalable_dimension = aws_appautoscaling_target.api.scalable_dimension
   policy_type        = "TargetTrackingScaling"
   target_tracking_scaling_policy_configuration {
-    target_value       = 300
+    target_value       = var.api_requests_per_target
     scale_out_cooldown = 30
     scale_in_cooldown  = 300
     predefined_metric_specification {

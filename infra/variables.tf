@@ -46,3 +46,9 @@ variable "waf_rate_limit" {
   default     = 2000
   description = "WAF rate-based rule: requests per 5 minutes per IP"
 }
+
+variable "api_requests_per_target" {
+  type        = number
+  default     = 300
+  description = "Target tracking: ALB requests per task per minute before scaling out"
+}

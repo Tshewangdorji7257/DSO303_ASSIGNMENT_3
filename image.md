@@ -89,6 +89,7 @@ In Tshewangdorji7257/DSO303_ASSIGNMENT_3 → Settings → Secrets and variables 
 Secrets tab → New repository secret
 ![alt text](image-27.png)
 ![alt text](image-28.png)
+![alt text](image-34.png)
 
 Then deploy
 Actions → deploy → Run workflow → main → Run workflow.
@@ -120,3 +121,29 @@ Next: the full BEFORE test (3,000 students, about 16 min)
 Settings unchanged: 2 tasks, db.t4g.micro, pool 10.
 
 Open the dashboard first: CloudWatch → Dashboards → exam-a3 → time range 1h, refresh 1 min.
+![alt text](image-35.png)
+
+k6 summary
+![alt text](image-36.png)
+
+Next: pull the CloudWatch numbers for the test window
+
+The test ran from about 13:01 to 13:18 your time (07:01–07:18 UTC). If you took dashboard screenshots, send them. In any case, run this script. It saves the key metrics minute by minute to a CSV, which is hard evidence, and I can analyse it exactly:
+![alt text](image-38.png)
+![alt text](image-37.png)
+
+The fix: right-size scaling from the measured capacity
+
+2 tasks handled 2,900 req/min each at 17% CPU. So:
+
+Target 3,000 requests per task per minute (about 50/s, still only ~20% CPU)
+Pre-scale to 4 tasks (2 per AZ) during exams, so one AZ alone can carry the whole peak
+Max 8 tasks, which keeps DB connections ≤ 80
+
+The 300 target is currently hard-coded, so make it a GitHub variable. Three small edits:
+![alt text](image-39.png)
+
+Then:
+
+Add GitHub Variables
+![alt text](image-40.png)

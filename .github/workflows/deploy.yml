@@ -33,6 +33,7 @@ env:
   TF_VAR_api_max_tasks: ${{ vars.API_MAX_TASKS || '20' }}
   TF_VAR_pg_pool_max: ${{ vars.PG_POOL_MAX || '10' }}
   TF_VAR_waf_rate_limit: ${{ vars.WAF_RATE_LIMIT || '2000' }}
+  TF_VAR_api_requests_per_target: ${{ vars.API_REQ_PER_TARGET || '300' }}
 
 jobs:
   deploy:
