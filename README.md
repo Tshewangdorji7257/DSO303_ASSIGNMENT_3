@@ -89,9 +89,7 @@ Where each service fits this use case:
 
 **Revised, cost-optimised design (Singapore, 2 AZs)**, with single points of failure (SPOFs) tagged ✔ removed / ⚠ accepted, plus a cost and test-findings legend:
 
-![alt text](architecture/architecture-v3.png)
-
-*(Source: [`architecture/exam-a3-singapore-architecture.json`](architecture/exam-a3-singapore-architecture.json), imported into the Cloud Architecture Lab.)*
+architecture/aws-architecture-diagram (14).png
 
 **Main data flows**
 
@@ -107,15 +105,15 @@ Where each service fits this use case:
 
 | # | Component | Decision |
 |---|---|---|
-| S1 | The Region itself | ⚠ **Accepted**: rebuild from Terraform + backups within the 1 h RTO |
-| S2 | RDS writer | ✔ **Removed**: Multi-AZ standby, automatic failover (measured in F1) |
-| S3 | NAT gateway | ✔ **Removed**: one per AZ |
-| S4 | API tasks | ✔ **Removed**: tasks in both AZs (measured in F2) |
-| S5–S6 | ALB, CloudFront, S3, SQS, Lambda | ✔ **Removed**: managed, multi-AZ |
-| S7 | WAF per-IP limit behind a campus NAT | ✔ **Removed** by design: campus IP-set exception (proven in the load test) |
-| S8 | SES sending quota | ⚠ **Accepted/mitigated**: production access, queued sending |
-| S9 | Bad release | ✔ **Removed**: ECS circuit-breaker rollback (measured in F3) |
-| S10 | Marking Lambda | ✔ **Removed**: retries + DLQ + redrive (measured in F4) |
+| S1 | The Region itself | **Accepted**: rebuild from Terraform + backups within the 1 h RTO |
+| S2 | RDS writer | **Removed**: Multi-AZ standby, automatic failover (measured in F1) |
+| S3 | NAT gateway | **Removed**: one per AZ |
+| S4 | API tasks | **Removed**: tasks in both AZs (measured in F2) |
+| S5–S6 | ALB, CloudFront, S3, SQS, Lambda | **Removed**: managed, multi-AZ |
+| S7 | WAF per-IP limit behind a campus NAT | **Removed** by design: campus IP-set exception (proven in the load test) |
+| S8 | SES sending quota | **Accepted/mitigated**: production access, queued sending |
+| S9 | Bad release | **Removed**: ECS circuit-breaker rollback (measured in F3) |
+| S10 | Marking Lambda | **Removed**: retries + DLQ + redrive (measured in F4) |
 | S11 | KMS key deletion | ⚠ **Accepted**: 7-day deletion window |
 
 **Key changes from Assignment 2** (full list C1–C26 in [`architecture/CHANGELOG.md`](architecture/CHANGELOG.md)):
