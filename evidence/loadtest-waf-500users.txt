@@ -1,0 +1,83 @@
+Load test 0 - WAF per-IP rate limit (bottleneck proven)
+=======================================================
+Date:      2026-11-22, ~12:25 BTT (UTC+6)
+Target:    https://dt60dgqnqv83d.cloudfront.net  (ap-southeast-1, exam-a3 stack)
+Client:    1 laptop in Phuntsholing, Bhutan = ONE public IP (simulates a class behind the campus NAT)
+Tool:      k6 v2.4.0, script loadtest/exam-peak.js
+Command:   k6 run -e BASE_URL=https://dt60dgqnqv83d.cloudfront.net -e STUDENTS=500 -e RAMP=1m -e HOLD=4m loadtest\exam-peak.js
+Settings:  WAF_RATE_LIMIT = 2000 requests / 5 min per IP (default), API_MIN_TASKS = 2, DB = db.t4g.micro, PG_POOL_MAX = 10
+
+Result summary
+--------------
+- 500 virtual students (1/6 of the 3,000 peak) from one IP
+- 3,021 of 5,624 requests (53.7%) BLOCKED by WAF with HTTP 403 (waf_blocked_403 = 3021, ~7.8/s)
+- Autosave success only 41% (2,103 OK / 3,021 blocked); exam load 100% OK (loads happened before the IP crossed the limit)
+- Latency of successful requests: median 472 ms, p95 1.37 s (mostly Bhutan -> Singapore network round trip)
+
+Conclusion
+----------
+The WAF rate-based rule (2,000 req / 5 min per IP) blocks legitimate students who share one public IP.
+3,000 students autosaving every 30 s = ~30,000 requests / 5 min from the campus NAT, i.e. 15x the limit.
+Fix (change C11): exempt campus egress IP ranges with an IP set (scope-down statement) or rate-limit per user
+(e.g. a custom key on the Cognito user / x-user-id header) instead of per source IP.
+For the capacity test the limit was raised temporarily (WAF_RATE_LIMIT = 2000000).
+
+Raw k6 output
+-------------
+
+     execution: local
+        script: loadtest\exam-peak.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 500 max VUs, 6m30s max duration (incl. graceful stop):
+              * exam_peak: Up to 500 looping VUs for 6m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+
+  █ THRESHOLDS
+
+    autosave_ms
+    ✗ 'p(95)<1000' p(95)=1.16s
+
+    exam_load_ms
+    ✓ 'p(95)<2000' p(95)=1.11s
+
+    http_req_failed
+    ✗ 'rate<0.01' rate=53.71%
+
+
+  █ TOTAL RESULTS
+
+    checks_total.......: 5624   14.438278/s
+    checks_succeeded...: 46.28% 2603 out of 5624
+    checks_failed......: 53.71% 3021 out of 5624
+
+    ✓ exam loaded 200
+    ✗ autosave 200
+      ↳  41% — ✓ 2103 / ✗ 3021
+
+    CUSTOM
+    autosave_failed................: 58.95% 3021 out of 5124
+    autosave_ms....................: avg=487.37ms med=376.91ms p(90)=935.33ms p(95)=1.16s  p(99)=1.86s  max=12.61s
+    exam_load_ms...................: avg=596ms    med=482.84ms p(90)=1.02s    p(95)=1.11s  p(99)=1.79s  max=3.64s
+    waf_blocked_403................: 3021   7.755696/s
+
+    HTTP
+    http_req_duration..............: avg=497.03ms med=383.26ms p(90)=951.77ms p(95)=1.16s  p(99)=1.86s  max=12.61s
+      { expected_response:true }...: avg=616.78ms med=472.05ms p(90)=1.05s    p(95)=1.37s  p(99)=2.19s  max=12.61s
+    http_req_failed................: 53.71% 3021 out of 5624
+    http_reqs......................: 5624   14.438278/s
+
+    EXECUTION
+    iteration_duration.............: avg=30.47s   med=30.32s   p(90)=38.63s   p(95)=39.53s p(99)=40.69s max=44.76s
+    iterations.....................: 5124   13.154647/s
+    vus............................: 2      min=2            max=500
+    vus_max........................: 500    min=500          max=500
+
+    NETWORK
+    data_received..................: 8.0 MB 20 kB/s
+    data_sent......................: 1.7 MB 4.3 kB/s
+
+
+running (6m29.5s), 000/500 VUs, 5124 complete and 32 interrupted iterations
+exam_peak ✓ [======================================] 000/500 VUs  6m0s
+ERRO[0390] thresholds on metrics 'autosave_ms, http_req_failed' have been crossed

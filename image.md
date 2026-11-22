@@ -89,3 +89,34 @@ In Tshewangdorji7257/DSO303_ASSIGNMENT_3 → Settings → Secrets and variables 
 Secrets tab → New repository secret
 ![alt text](image-27.png)
 ![alt text](image-28.png)
+
+Then deploy
+Actions → deploy → Run workflow → main → Run workflow.
+![alt text](image-29.png)
+
+Now the load test: 2 marks, and the hardest criterion to get full marks on. Follow this order.
+
+Step 1: Install k6 (2 min)
+![alt text](image-30.png)
+
+
+Step 2 (optional, worth doing): prove the WAF bottleneck first (5 min)
+
+The WAF rate limit is still 2,000 requests per 5 min per IP. Run a small test from your one IP. It acts like a class sharing one campus IP, and WAF will block it, which turns this reasoned bottleneck into a proven one:
+![alt text](image-31.png)
+
+CloudWatch → Dashboards → exam-a3, time range last 30 minutes → screenshot the "WAF blocked requests (rate limit)" graph. It should show a spike starting a minute or two into the test. 
+![alt text](image-32.png)
+
+Next: step 3, raise the WAF limit
+GitHub → Settings → Secrets and variables → Actions → Variables → New repository variable: WAF_RATE_LIMIT = 2000000
+Actions → deploy → Run workflow (about 3–5 min).
+When it's green, run the smoke test:
+![alt text](image-33.png)
+
+
+Next: the full BEFORE test (3,000 students, about 16 min)
+
+Settings unchanged: 2 tasks, db.t4g.micro, pool 10.
+
+Open the dashboard first: CloudWatch → Dashboards → exam-a3 → time range 1h, refresh 1 min.
