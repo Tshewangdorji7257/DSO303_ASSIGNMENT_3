@@ -1,4 +1,5 @@
 const express = require("express");
+require("express-async-errors"); // route errors -> HTTP 500 instead of crashing Node
 const { Pool } = require("pg");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
@@ -83,3 +84,6 @@ if (process.env.FRONTEND_DIR) app.use(express.static(process.env.FRONTEND_DIR));
 
 app.use((err, _req, res, _next) => { console.error(err); res.status(500).json({ error: "server error" }); });
 app.listen(8080, () => console.log("API listening on 8080"));
+
+// Last line of defence: log, never crash, on a stray rejected promise
+process.on("unhandledRejection", (e) => console.error("unhandledRejection:", e && e.message));

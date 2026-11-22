@@ -166,3 +166,19 @@ The stack is ready, and the probe script is in scripts\probe.ps1. Start with F1,
 
 Open two PowerShell windows. In window 1, start the probe:
 ![alt text](image-44.png)
+
+Window 2: after about 30 s of green lines, trigger the failover
+Then, still in window 2, check every 30 seconds until the failover finishes:
+![alt text](image-45.png)
+
+Window 1: the probe
+![alt text](image-46.png)
+
+Window 2: after about 30 seconds of green lines
+![alt text](image-47.png)
+
+Then check every 30–60 s until you see "Multi-AZ instance failover completed":
+![alt text](image-48.png)
+
+After the "completed" event and 30 s of green in window 1: press Ctrl+C in window 1, then in window 2 run:
+![alt text](image-49.png)
