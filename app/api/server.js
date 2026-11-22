@@ -17,7 +17,7 @@ const sqs = new SQSClient({});
 const user = (req) => req.headers["x-user-id"] || "demo-student";
 
 // Liveness for the ALB: does NOT touch the database, so a DB failover does not make ECS replace every task
-app.get("/api/live", (_req, res) => res.send("ok"));
+app.get("/api/live", (_req, res) => res.status(500).send("broken release")); // F3: deliberately broken
 // Without this handler, an idle pg connection dropped during a failover can crash Node (exit code 1)
 pool.on("error", (e) => console.error("pg pool error:", e.message));
 app.get("/api/health", async (_req, res) => {
