@@ -150,15 +150,21 @@ Same data at the end of year 1: **1,925 GB** (165 Standard + 800 IA + 960 Glacie
 | Question | Evidence | Answer |
 |---|---|---|
 | **Within USD 1,000/month averaged over a year?** | Annual USD 5,693.80 → **USD 474.48/month** (47 % of budget, On-Demand); ≈ USD 391/month with adopted optimisations | **✔ Yes, with ~50 % headroom** |
-| **Headroom if the load test needs more capacity?** | e.g. RDS one size up (≈ +USD 200/month) or Aurora Serverless v2 still keeps the average < USD 700/month | ✔ Yes |
-| **Handles the peak (3,000 starts in 5 min)?** | Load test after the fix: p95 ___ ms, errors ___ % at ___ tasks / DB class ___ (`loadtest/`, `evidence/loadtest-*.json`) | ☐ *fill after load test* |
-| **RPO ≤ 5 min?** | Multi-AZ synchronous replication; F1 failover: ___ acknowledged saves lost; PITR granularity 5 min | ☐ *fill after F1* |
-| **RTO ≤ 1 h?** | F1 failover ___ s; F2 AZ loss ___ s; F5 PITR restore ___ min | ☐ *fill after failure tests* |
-| **Survives the loss of one AZ?** | 2 AZs at every tier; F2 measured ___ s of errors | ☐ *fill after F2* |
+| **Handles the peak (3,000 starts in 5 min)?** | Load test T3 (`loadtest/RESULTS.md`): 3,000 virtual students, ~5,900 req/min, **4 tasks**, **0.005 % errors**, server response **17 ms avg**, autosave p95 **0.95 s** from Bhutan, ECS CPU ≤ 17 %, RDS CPU ≤ 19 % on db.t4g.micro | **✔ Yes**, after right-sizing auto scaling (300 → 3,000 req/task, pre-scale to 4) |
+| **Peak blocked by anything?** | WAF per-IP limit blocked **95 %** of requests from one IP at the peak (T0b) | **✘ until fixed**: campus IP-set exception / per-user rate limit required (C11) |
+| **RPO ≤ 5 min?** | 5 probe runs across F1–F3: **0 acknowledged autosaves lost**; F4: **0 of 3** marking jobs lost (DLQ + redrive); synchronous Multi-AZ | **✔ Yes (measured RPO = 0)** |
+| **RTO ≤ 1 h?** | F1 DB failover **16 s** API outage (after fixes; 89 s before); F2 AZ loss 34 s intermittent; F3 bad release 0 s with auto-rollback in 2 min; F4 recovery ~1 min after fix | **✔ Yes (worst measured: 89 s)** |
+| **Survives the loss of one AZ?** | F2: AZ-a app subnet isolated → AZ-b tasks carried all traffic, replacement started in AZ-b within ~70 s; F1: DB failed over between AZs | **✔ Yes** |
 | **Files kept 5 years?** | S3 lifecycle expire at 1,826 days; versioning; AWS Backup monthly copies | ✔ Yes (by configuration) |
 
-**Verdict (cost):** **Feasible.** The platform costs **USD 474/month on average (USD 0.71 per student per year)**, under half the USD 1,000 budget, before any optimisation. Over 70 % of the bill is fixed availability capacity (RDS Multi-AZ, NAT per AZ, baseline tasks, IPv4, ALB), so exam months add only USD 52. The budget is **not** the limiting factor; **peak performance and the database** are, and the remaining headroom is enough to fix either.
-**Verdict (performance and resilience):** *complete after the load and failure tests, e.g. "Peak handled at p95 ___ ms after pre-scaling to ___ tasks and moving to ___; RDS failover ___ s with no data lost, so RPO and RTO are met."*
+**Verdict: feasible.** The platform costs **USD 474/month on average (USD 0.71 per student per year)**, under half the USD 1,000 budget, and about **USD 391/month** after the adopted optimisations. Load and failure testing showed that **money is not the constraint; configuration is.** Three real defects were found and fixed with measurements:
+
+1. **Auto scaling mis-sized:** 2 → 20 tasks at 17 % CPU, 4–8 min late, DB connections 8 → 61. Fixed (4 tasks, 28 connections).
+2. **Deep health check plus unhandled async errors:** a 49 s DB failover caused an 89 s API outage and restarted every task. Fixed (16 s, no restarts).
+3. **WAF per-IP limit:** would block a whole class behind one campus IP. Fix designed (C11).
+
+The measured capacity (2 tasks, a micro database at < 20 % CPU) leaves room to **downsize** the database class in the design (O8) rather than grow it.
+**Conditions:** apply C11 (WAF) and C12 (SES production access) before the first exam week, and keep the scheduled pre-scale of 4 tasks (2 per AZ) during exam windows.
 
 ## 6. Optimisations (Task 3)
 

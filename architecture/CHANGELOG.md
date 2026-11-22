@@ -1,7 +1,7 @@
 # Architecture change log: Assignment 2 → Assignment 3
 
 Baseline: Assignment 2 design ([`assignment2-diagram.png`](assignment2-diagram.png), [`assignment2-walkthroughs.md`](assignment2-walkthroughs.md)).
-Revised design: `architecture-v3.png` (draw it after the cost and test results).
+Revised design: [`exam-a3-singapore-architecture.json`](exam-a3-singapore-architecture.json) (import into the Cloud Architecture Lab, then export `architecture-v3.png`).
 
 Status: **Done** = in Terraform now · **Planned** = recommended in the report, not deployed · **Rejected** = evaluated and not adopted.
 Fill the "Driven by" column with the evidence (calculator line, load test, failure test).
@@ -14,15 +14,26 @@ Fill the "Driven by" column with the evidence (calculator line, load test, failu
 | C4 | `pg` pool size configurable (`PG_POOL_MAX`) | DB connection limit found / avoided under peak | Load test | Done |
 | C5 | Dashboard: p95 response time, running tasks, RDS credits and memory, WAF blocks | Prove the bottleneck in CloudWatch | Load test | Done |
 | C6 | Manual **destroy** workflow | Only pay while testing | Cost | Done |
-| C7 | RDS class `db.t4g.micro` → `________` | Burstable CPU credits / connections exhausted at peak | Load test before/after | |
-| C8 | Scheduled pre-scale to `__` tasks 30 min before each exam | Target tracking reacts too slowly to a 5-minute ramp | Load test | Planned |
+| C7 | RDS class: design db.t4g.medium; load test peaked at **19 % CPU on db.t4g.micro** with steady credits → candidate **db.t4g.small** (O8) | The database was not the bottleneck; connections were (C25) | Load test | Planned |
+| C8 | Scheduled pre-scale to **4** tasks (2 per AZ) 30 min before each exam | Load test: target tracking added tasks 4–8 min after the 5-minute ramp | Load test | Done (min 4 set for tests); scheduled action planned |
 | C9 | Fargate **ARM64 (Graviton)** | ~20% cheaper compute | Calculator O1 | |
 | C10 | **Compute Savings Plan** (baseline) and **RDS RI** | Steady 24/7 baseline is commitment-friendly | Calculator O2/O3 | |
 | C11 | WAF rate limit: IP set for campus NAT ranges / rate by user | 3,000 students behind one campus IP would be blocked | Reasoned bottleneck | Planned |
 | C12 | SES production access + higher send rate | Result release for 3,000 students exceeds the sandbox | Reasoned bottleneck | Planned |
-| C13 | RDS Proxy | Shorter failover error window; pools Lambda + API connections | Failure test F1 | Planned |
+| C13 | RDS Proxy | Shorter failover error window; pools Lambda + API connections | Failure test F1 | In revised design |
 | C14 | Interface VPC endpoints instead of NAT data | Cost more than the NAT GB they save at this traffic level | Calculator O5 | Rejected |
 | C15 | Single NAT gateway | Cheaper, but a single point of failure for egress in one AZ | Calculator O6 | Rejected |
+| C16 | Upload-handler Lambda + email queue (A2 lab design) merged into one notify queue + notify Lambda; the API records the submission at presign | Fewer moving parts and Lambdas; matches the deployed code | Simplification | Done |
+| C17 | CloudFront PriceClass_100 → **PriceClass_200** | PriceClass_100 has no Asian edges, so Bhutan users were served from Europe/US; 200 adds India and Asia | Region/latency analysis (§4) | In revised design |
+| C18 | CloudWatch log retention 400 d (A2 lab) → 30 d | Logs ingestion and storage are a hidden cost | Calculator | Done |
+| C19 | AWS Budgets ($1,000 alerts at 80/100%) + Cost Anomaly Detection | Proves the platform stays within budget | Budget requirement | In revised design |
+| C20 | Terraform lock: DynamoDB table → S3 native lock (`use_lockfile`) | One fewer resource | – | Done |
+| C21 | Fargate 1 vCPU / 2 GB × min 4 (A2 lab) → 0.5 vCPU / 1 GB × min 2 + scheduled pre-scale | Normal months need ~2 tasks; peak capacity only during sittings | Calculator + load test | Done |
+| C22 | RDS PITR 14 d / db.r6g.large (A2 lab) → 7 d / db.t4g.medium + 1-yr RI | Right-sized from the load test; 7 days still meets RPO 5 min | Calculator + load test | In revised design |
+| C23 | ALB health check `/api/health` (DB query) → **`/api/live`** (no DB); `/api/health` kept as the deep check | A DB failover made every task fail its health check, so ECS replaced the whole service (F1: 89 s outage) | Failure test F1 | Done |
+| C24 | `require("express-async-errors")`, `pool.on("error")`, `unhandledRejection` handler in the API | Async DB errors crashed Node (exit 1) during failover (F1 run 2: 76 s, all tasks restarted) → after fix 16 s, no restarts | Failure test F1 | Done |
+| C25 | Auto scaling request target **300 → 3,000 req/task/min**, min 4 in exam windows, max **20 → 8** | Load test: 2 → 20 tasks at 17 % CPU, 4–8 min late, DB connections 8 → 61 → after fix 4 tasks, 28 connections | Load test | Done |
+| C26 | Pipeline: wait for ECS steady state before the smoke test (planned) | F3: the smoke test can pass while ECS is rolling back a bad release | Failure test F3 | Planned |
 
 ## Single points of failure (mark these on the revised diagram)
 

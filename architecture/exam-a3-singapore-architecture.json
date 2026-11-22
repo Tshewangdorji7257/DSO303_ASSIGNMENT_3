@@ -1,0 +1,2521 @@
+{
+  "format": "aws-architecture-lab",
+  "version": 2,
+  "applicationRelease": null,
+  "savedAt": "2026-11-22T15:23:41.000Z",
+  "state": {
+    "draftName": "Exam Platform A3 - Cost-optimised Singapore (2 AZ)",
+    "nodes": [
+      {
+        "id": "box-region",
+        "type": "boundaryNode",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "data": {
+          "label": "⚠ SPOF S1 ACCEPTED (single Region) · AWS Region · ap-southeast-1 (Singapore) · exam-a3-vpc (10.0.0.0/16) · two Availability Zones: ap-southeast-1a and ap-southeast-1b · A3 cost-optimised design (budget USD 1,000/month avg)",
+          "boundaryType": "region",
+          "width": 2760,
+          "height": 1900
+        },
+        "style": {
+          "width": 2760,
+          "height": 1900
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": -3
+      },
+      {
+        "id": "box-col0",
+        "type": "boundaryNode",
+        "position": {
+          "x": 200,
+          "y": 70
+        },
+        "data": {
+          "label": "Edge: DNS, CDN, WAF, frontend and sign-in",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "box-col1",
+        "type": "boundaryNode",
+        "position": {
+          "x": 630,
+          "y": 70
+        },
+        "data": {
+          "label": "VPC public tier (ALB, 2× NAT, AZ a + AZ b)",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "box-col2",
+        "type": "boundaryNode",
+        "position": {
+          "x": 1060,
+          "y": 70
+        },
+        "data": {
+          "label": "VPC private app tier (ECS Fargate ARM64, AZ a + AZ b)",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "box-col3",
+        "type": "boundaryNode",
+        "position": {
+          "x": 1490,
+          "y": 70
+        },
+        "data": {
+          "label": "VPC private data tier (RDS Proxy, RDS Multi-AZ, secrets, keys)",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "box-col4",
+        "type": "boundaryNode",
+        "position": {
+          "x": 1920,
+          "y": 70
+        },
+        "data": {
+          "label": "Files and async processing (S3 lifecycle, SQS, Lambda, SES)",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "box-col5",
+        "type": "boundaryNode",
+        "position": {
+          "x": 2350,
+          "y": 70
+        },
+        "data": {
+          "label": "Operations, cost governance, backup and CI/CD",
+          "boundaryType": "auth",
+          "width": 400,
+          "height": 1790
+        },
+        "style": {
+          "width": 400,
+          "height": 1790
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 1
+      },
+      {
+        "id": "node-student",
+        "type": "serviceNode",
+        "position": {
+          "x": 25,
+          "y": 280
+        },
+        "data": {
+          "label": "Student (browser, 8,000 users, Bhutan)",
+          "serviceId": "user",
+          "category": "Client / Ingress",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "role": "students group",
+            "peak": "3,000 start one exam in 5 min (~10 starts/s, ~100 autosaves/s)",
+            "location": "Bhutan, ~campus NAT shared public IPs"
+          },
+          "notes": "Sits timed exams, autosaves every 30 s, uploads PDF/ZIP up to 50 MB. Many students share one campus public IP."
+        }
+      },
+      {
+        "id": "node-tutor",
+        "type": "serviceNode",
+        "position": {
+          "x": 25,
+          "y": 1240
+        },
+        "data": {
+          "label": "Tutor (browser, ~400 staff)",
+          "serviceId": "user",
+          "category": "Client / Ingress",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "role": "tutors group"
+          },
+          "notes": "Creates exams, marks, releases results, receives upload emails."
+        }
+      },
+      {
+        "id": "node-admin",
+        "type": "serviceNode",
+        "position": {
+          "x": 25,
+          "y": 1610
+        },
+        "data": {
+          "label": "Administrator",
+          "serviceId": "user",
+          "category": "Client / Ingress",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "role": "admins group"
+          },
+          "notes": "Manages users and exam timetable (drives the scheduled pre-scale)."
+        }
+      },
+      {
+        "id": "node-r53",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 130
+        },
+        "data": {
+          "label": "Route 53 hosted zone",
+          "serviceId": "route53",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "record": "alias A/AAAA to CloudFront (alias queries free)",
+            "spof": "No - global anycast DNS"
+          },
+          "notes": "Global DNS. ~$0.50/month zone fee."
+        }
+      },
+      {
+        "id": "node-cf",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 315
+        },
+        "data": {
+          "label": "CloudFront (PriceClass_200) ✔S6",
+          "serviceId": "cloudfront",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "origins": "S3 frontend (OAC) and ALB (HTTPS, secret X-Origin-Verify header)",
+            "behaviours": "default = cached SPA; /api/* = CachingDisabled",
+            "priceClass": "PriceClass_200 (A3 change C17: includes India/Asia edges; PriceClass_100 sent Bhutan users to EU/US edges)",
+            "freeTier": "1 TB out + 10 M requests/month always free",
+            "spof": "No - global edge network"
+          },
+          "notes": "Single public entry. Static SPA cached at the edge, so only API calls reach Singapore."
+        }
+      },
+      {
+        "id": "node-waf",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 500
+        },
+        "data": {
+          "label": "AWS WAF web ACL ✔S7 removed",
+          "serviceId": "waf",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "rules": "rate limit + AWS Common + Known Bad Inputs",
+            "rateLimit": "2,000 req/5 min per IP, scoped DOWN to exclude campus NAT IP set (A3 change C11)",
+            "campusIpSet": "university egress ranges get a higher limit / per-user limit",
+            "spof": "S7 REMOVED - per-IP limit would have blocked 3,000 students behind one campus IP"
+          },
+          "notes": "Layer 7 filtering. Load test showed per-IP rate limiting is a bottleneck for a shared campus IP."
+        }
+      },
+      {
+        "id": "node-acm",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 685
+        },
+        "data": {
+          "label": "ACM certificates",
+          "serviceId": "acm",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "cloudfront": "us-east-1 certificate",
+            "alb": "ap-southeast-1 certificate",
+            "renewal": "automatic, DNS validation"
+          },
+          "notes": "Free public certificates."
+        }
+      },
+      {
+        "id": "node-s3-web",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 870
+        },
+        "data": {
+          "label": "S3 bucket exam-a3-frontend",
+          "serviceId": "s3",
+          "category": "Storage",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "access": "private, CloudFront OAC only",
+            "encryption": "SSE-S3",
+            "size": "16 KB SPA"
+          },
+          "notes": "Static frontend hosting, cost < $0.10/month."
+        }
+      },
+      {
+        "id": "node-cognito",
+        "type": "serviceNode",
+        "position": {
+          "x": 230,
+          "y": 1055
+        },
+        "data": {
+          "label": "Cognito user pool exam-a3-users",
+          "serviceId": "cognito",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "groups": "students, tutors, admins",
+            "mau": "8,400 (within Essentials free tier)",
+            "mfa": "required for staff"
+          },
+          "notes": "Role-based sign-in; API validates JWT + group."
+        }
+      },
+      {
+        "id": "node-pub-a",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 130
+        },
+        "data": {
+          "label": "Public subnet exam-a3-public-1",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.0.0/24",
+            "route": "0.0.0.0/0 to internet gateway"
+          },
+          "notes": "ALB node + NAT gateway AZ a."
+        }
+      },
+      {
+        "id": "node-pub-b",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 315
+        },
+        "data": {
+          "label": "Public subnet exam-a3-public-2",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.1.0/24",
+            "route": "0.0.0.0/0 to internet gateway"
+          },
+          "notes": "ALB node + NAT gateway AZ b."
+        }
+      },
+      {
+        "id": "node-alb",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 500
+        },
+        "data": {
+          "label": "ALB exam-a3-alb ✔S5 removed",
+          "serviceId": "alb",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a, ap-southeast-1b",
+          "subnet": "exam-a3-public-1, exam-a3-public-2",
+          "replicas": 2,
+          "multiAz": true,
+          "customConfig": {
+            "listener": "HTTPS 443 (ACM), forward only with X-Origin-Verify header",
+            "healthCheck": "/api/live (no DB) every 15 s, 2 healthy / 3 unhealthy - changed after failure test F1",
+            "deregistration": "30 s",
+            "spof": "S5 REMOVED - managed, nodes in both AZs"
+          },
+          "notes": "Only reachable from CloudFront (prefix list + secret header). ~$18/month + LCU."
+        }
+      },
+      {
+        "id": "node-nat-a",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 685
+        },
+        "data": {
+          "label": "NAT gateway AZ a ✔S3 removed",
+          "serviceId": "nat_gateway",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "exam-a3-public-1",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "eip": "1 public IPv4 (hidden cost ~$3.6/month)",
+            "dataProcessed": "image pulls, logs, SES/SQS/Secrets API calls",
+            "spof": "S3 REMOVED - one NAT per AZ (single NAT rejected in optimisation O6)"
+          },
+          "notes": "Kept per AZ: cheaper than 5 interface endpoints × 2 AZs at this traffic level (O5 rejected)."
+        }
+      },
+      {
+        "id": "node-nat-b",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 870
+        },
+        "data": {
+          "label": "NAT gateway AZ b ✔S3 removed",
+          "serviceId": "nat_gateway",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "exam-a3-public-2",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "eip": "1 public IPv4",
+            "spof": "S3 REMOVED - mirror of AZ a"
+          },
+          "notes": "Survivor keeps outbound access if AZ a fails."
+        }
+      },
+      {
+        "id": "node-alb-sg",
+        "type": "serviceNode",
+        "position": {
+          "x": 660,
+          "y": 1055
+        },
+        "data": {
+          "label": "Security group exam-a3-alb",
+          "serviceId": "security_group",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "inbound": "TCP 443 from CloudFront origin-facing prefix list only"
+          },
+          "notes": "Nothing else can reach the ALB."
+        }
+      },
+      {
+        "id": "node-app-a",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 130
+        },
+        "data": {
+          "label": "Private app subnet exam-a3-app-1",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.10.0/24",
+            "route": "0.0.0.0/0 to NAT AZ a; S3 via gateway endpoint"
+          },
+          "notes": "Fargate tasks + VPC Lambdas, no public IPs."
+        }
+      },
+      {
+        "id": "node-app-b",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 315
+        },
+        "data": {
+          "label": "Private app subnet exam-a3-app-2",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.11.0/24",
+            "route": "0.0.0.0/0 to NAT AZ b; S3 via gateway endpoint"
+          },
+          "notes": "Fargate tasks + VPC Lambdas, no public IPs."
+        }
+      },
+      {
+        "id": "node-ecs-a",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 500
+        },
+        "data": {
+          "label": "ECS Fargate API AZ a (ARM64) ✔S4 removed",
+          "serviceId": "ecs",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "exam-a3-app-1",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "cpu_mem": "0.5 vCPU / 1 GB, ARM64 (A3 change C9, ~20% cheaper)",
+            "normalMonth": "1 task in this AZ (2 total)",
+            "examWindow": "pre-scaled to 2 per AZ (4 total, load-tested) 30 min before each sitting",
+            "pricing": "baseline covered by 1-yr Compute Savings Plan (C10)",
+            "pgPool": "PG_POOL_MAX via RDS Proxy",
+            "spof": "S4 REMOVED - tasks in both AZs, circuit breaker auto-rollback (S9)"
+          },
+          "notes": "Stateless REST API: exam load, autosave upsert, submit to SQS, presign upload."
+        }
+      },
+      {
+        "id": "node-ecs-b",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 685
+        },
+        "data": {
+          "label": "ECS Fargate API AZ b (ARM64) ✔S4 removed",
+          "serviceId": "ecs",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "exam-a3-app-2",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "cpu_mem": "0.5 vCPU / 1 GB, ARM64",
+            "normalMonth": "1 task in this AZ",
+            "examWindow": "pre-scaled so ONE AZ alone carries the full peak",
+            "spof": "S4 REMOVED"
+          },
+          "notes": "Same service. Survivor carries the peak if an AZ fails (failure test F2)."
+        }
+      },
+      {
+        "id": "node-app-sg",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 870
+        },
+        "data": {
+          "label": "Security group exam-a3-api",
+          "serviceId": "security_group",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "inbound": "TCP 8080 from exam-a3-alb SG",
+            "outbound": "5432 to RDS Proxy SG, 443 to AWS APIs"
+          },
+          "notes": "Group reference, not a CIDR."
+        }
+      },
+      {
+        "id": "node-vpce",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 1055
+        },
+        "data": {
+          "label": "S3 gateway VPC endpoint (free)",
+          "serviceId": "vpc_endpoint",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a, ap-southeast-1b",
+          "subnet": "app route tables",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "gateway": "S3 (no hourly or per-GB charge)",
+            "interfaceEndpoints": "REMOVED vs A2 lab design (C14): 5 endpoints × 2 AZs cost more than the NAT GB they save"
+          },
+          "notes": "Presigned upload checks, frontend sync and S3 calls stay off NAT."
+        }
+      },
+      {
+        "id": "node-asg",
+        "type": "serviceNode",
+        "position": {
+          "x": 1090,
+          "y": 1240
+        },
+        "data": {
+          "label": "Application Auto Scaling (scheduled + target tracking)",
+          "serviceId": "autoscaling",
+          "category": "Management & Governance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "scheduled": "raise min tasks 30 min before each timetabled sitting, lower after (C8)",
+            "target": "CPU 50% and 3,000 requests/task/min (was 300: scaled 2->20 at 17% CPU in load test)",
+            "range": "min 2 (4 in exams) / max 8",
+            "finding": "load test: target tracking alone lags a 5-minute ramp"
+          },
+          "notes": "Pay for peak capacity only ~2.5 h per sitting instead of all month (O4)."
+        }
+      },
+      {
+        "id": "node-data-a",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 130
+        },
+        "data": {
+          "label": "Private data subnet exam-a3-db-1",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.20.0/24",
+            "route": "local only"
+          },
+          "notes": "No route to internet or NAT."
+        }
+      },
+      {
+        "id": "node-data-b",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 315
+        },
+        "data": {
+          "label": "Private data subnet exam-a3-db-2",
+          "serviceId": "subnet",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "cidr": "10.0.21.0/24",
+            "route": "local only"
+          },
+          "notes": "No route to internet or NAT."
+        }
+      },
+      {
+        "id": "node-proxy",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 500
+        },
+        "data": {
+          "label": "RDS Proxy ✔S2 (failover gap)",
+          "serviceId": "rds",
+          "category": "Database",
+          "health": "healthy",
+          "az": "ap-southeast-1a, ap-southeast-1b",
+          "subnet": "exam-a3-db-1, exam-a3-db-2",
+          "replicas": 2,
+          "multiAz": true,
+          "customConfig": {
+            "purpose": "pools API + Lambda connections, holds clients during failover (C13)",
+            "auth": "Secrets Manager, TLS required",
+            "finding": "failure test F1 error window; load test connection count"
+          },
+          "notes": "Cuts failover error window from ~60-120 s to a few seconds and caps DB connections."
+        }
+      },
+      {
+        "id": "node-rds",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 685
+        },
+        "data": {
+          "label": "RDS PRIMARY exam-a3-db ✔S2 removed",
+          "serviceId": "rds",
+          "category": "Database",
+          "health": "healthy",
+          "az": "ap-southeast-1a",
+          "subnet": "exam-a3-db-1",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "class": "db.t4g.medium (A2 lab: db.r6g.large; A3 deployed test: micro -> fixed after load test, C7)",
+            "multiAz": "true",
+            "pricing": "1-yr Reserved Instance, Multi-AZ (O3/C10)",
+            "storage": "gp3 50 GB, KMS encrypted",
+            "backups": "automated 7 days + PITR (RPO <= 5 min)",
+            "spof": "S2 REMOVED (mostly) - synchronous standby + automatic failover"
+          },
+          "notes": "Exams, answers, results. Most expensive single component (pays for a standby)."
+        }
+      },
+      {
+        "id": "node-rds-standby",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 870
+        },
+        "data": {
+          "label": "RDS PostgreSQL STANDBY",
+          "serviceId": "rds",
+          "category": "Database",
+          "health": "healthy",
+          "az": "ap-southeast-1b",
+          "subnet": "exam-a3-db-2",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "replication": "synchronous",
+            "failover": "automatic ~60-120 s (measured in F1)"
+          },
+          "notes": "Promoted if AZ a or the primary fails. Zero committed-data loss."
+        }
+      },
+      {
+        "id": "node-db-sg",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 1055
+        },
+        "data": {
+          "label": "Security group exam-a3-db",
+          "serviceId": "security_group",
+          "category": "Networking & Content Delivery",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "inbound": "TCP 5432 from RDS Proxy SG only"
+          },
+          "notes": "Proxy SG accepts 5432 from API and Lambda SGs."
+        }
+      },
+      {
+        "id": "node-secrets",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 1240
+        },
+        "data": {
+          "label": "Secrets Manager (RDS-managed secret)",
+          "serviceId": "secrets_manager",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "rotation": "automatic, 7 days (RDS default)",
+            "consumers": "RDS Proxy, ECS execution role, Lambda role"
+          },
+          "notes": "No passwords in code. ~$0.40/month."
+        }
+      },
+      {
+        "id": "node-kms",
+        "type": "serviceNode",
+        "position": {
+          "x": 1520,
+          "y": 1425
+        },
+        "data": {
+          "label": "KMS key ⚠S11 accepted",
+          "serviceId": "kms",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "rotation": "annual",
+            "usedBy": "RDS, S3 uploads (Bucket Key), Backup vault",
+            "requests": "S3 Bucket Key keeps request charges low (hidden cost)",
+            "spof": "S11 ACCEPTED - 7-day deletion window, restricted key policy"
+          },
+          "notes": "$1/month + requests."
+        }
+      },
+      {
+        "id": "node-s3-up",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 130
+        },
+        "data": {
+          "label": "S3 uploads (5-yr lifecycle) ✔S6",
+          "serviceId": "s3",
+          "category": "Storage",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "encryption": "SSE-KMS + Bucket Key",
+            "versioning": "on (non-current expire 365 d)",
+            "policy": "deny non-TLS",
+            "lifecycle": "Standard -> Standard-IA at 30 d -> Glacier Flexible at 180 d -> expire 1,826 d (5 y)",
+            "growth": "~160 GB/month, ~9.6 TB at year 5 (mostly Glacier)",
+            "comparison": "cheaper than Standard-only or Intelligent-Tiering for predictable ageing (O7)"
+          },
+          "notes": "Browser uploads directly with a presigned URL; 50 MB never touches the API."
+        }
+      },
+      {
+        "id": "node-q-notify",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 315
+        },
+        "data": {
+          "label": "SQS exam-a3-notify",
+          "serviceId": "sqs",
+          "category": "Application Integration",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "source": "S3 ObjectCreated on submissions/",
+            "redrive": "5 receives to DLQ",
+            "encryption": "SSE"
+          },
+          "notes": "Buffers upload events; failures retried, never lost."
+        }
+      },
+      {
+        "id": "node-l-notify",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 500
+        },
+        "data": {
+          "label": "Lambda exam-a3-notify",
+          "serviceId": "lambda",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "runtime": "python3.12",
+            "trigger": "notify queue, batch 10",
+            "action": "SES SendEmail to tutor"
+          },
+          "notes": "Upload notices and result-release emails. Free tier covers volume."
+        }
+      },
+      {
+        "id": "node-q-mark",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 685
+        },
+        "data": {
+          "label": "SQS marking ✔S6",
+          "serviceId": "sqs",
+          "category": "Application Integration",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "visibilityTimeout": "6 × Lambda timeout",
+            "redrive": "5 receives to DLQ",
+            "volume": "60,000 jobs per exam month"
+          },
+          "notes": "Absorbs submit bursts; marking never slows an exam."
+        }
+      },
+      {
+        "id": "node-l-mark",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 870
+        },
+        "data": {
+          "label": "Lambda marker ✔S10 removed",
+          "serviceId": "lambda",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "ap-southeast-1a, ap-southeast-1b",
+          "subnet": "exam-a3-app-1, exam-a3-app-2",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "runtime": "python3.12",
+            "batchSize": "10",
+            "reservedConcurrency": "20 (protects DB connections)",
+            "db": "via RDS Proxy, credentials from Secrets Manager"
+          },
+          "notes": "Auto-marks MCQs, idempotent upsert into results."
+        }
+      },
+      {
+        "id": "node-dlq",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 1055
+        },
+        "data": {
+          "label": "SQS dead-letter queues (marking, notify)",
+          "serviceId": "sqs",
+          "category": "Application Integration",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "retention": "14 days",
+            "alarm": "depth > 0 -> SNS",
+            "recovery": "DLQ redrive (failure test F4)"
+          },
+          "notes": "Failed messages kept and alarmed."
+        }
+      },
+      {
+        "id": "node-ses",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 1240
+        },
+        "data": {
+          "label": "Amazon SES ⚠S8 accepted (quota)",
+          "serviceId": "ses",
+          "category": "Application Integration",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "identity": "university domain, DKIM/SPF/DMARC",
+            "quota": "production access + raised send rate (C12)",
+            "spof": "S8 ACCEPTED/MITIGATED - sandbox (200/day, 1/s) would block result emails for 3,000 students; results also shown in app"
+          },
+          "notes": "$0.10 per 1,000 emails."
+        }
+      },
+      {
+        "id": "node-l-dbinit",
+        "type": "serviceNode",
+        "position": {
+          "x": 1950,
+          "y": 1425
+        },
+        "data": {
+          "label": "Lambda exam-a3-db-init",
+          "serviceId": "lambda",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "ap-southeast-1a, ap-southeast-1b",
+          "subnet": "exam-a3-app-1, exam-a3-app-2",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "trigger": "Terraform on each deploy",
+            "action": "idempotent schema + seed"
+          },
+          "notes": "Private DB needs no bastion host."
+        }
+      },
+      {
+        "id": "node-cw",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 130
+        },
+        "data": {
+          "label": "CloudWatch logs, metrics, alarms, dashboard",
+          "serviceId": "cloudwatch",
+          "category": "Management & Governance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "alarms": "ALB 5xx, unhealthy targets, p95 latency, RDS CPU/credits, DLQ depth",
+            "dashboard": "load-test widgets: p95, running tasks, RDS credits, WAF blocks",
+            "retention": "30 days (A2 lab: 400 d) - hidden cost cut (C18)"
+          },
+          "notes": "Logs ingestion is a hidden cost; no per-request INFO logging."
+        }
+      },
+      {
+        "id": "node-sns",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 315
+        },
+        "data": {
+          "label": "SNS exam-a3-alerts",
+          "serviceId": "sns",
+          "category": "Application Integration",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "subscribers": "ops email"
+          },
+          "notes": "Alarm and budget delivery."
+        }
+      },
+      {
+        "id": "node-budget",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 500
+        },
+        "data": {
+          "label": "AWS Budgets + Cost Anomaly Detection",
+          "serviceId": "cloudwatch",
+          "category": "Management & Governance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "budget": "USD 1,000/month avg (alerts at 80% and 100% forecast)",
+            "anomaly": "daily spend anomaly alerts",
+            "change": "NEW in A3 (C19)"
+          },
+          "notes": "Cost governance: proves the design stays within budget."
+        }
+      },
+      {
+        "id": "node-trail",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 685
+        },
+        "data": {
+          "label": "CloudTrail (management events)",
+          "serviceId": "cloudtrail",
+          "category": "Management & Governance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "cost": "first management trail free; S3 storage only",
+            "logValidation": "on"
+          },
+          "notes": "Audit trail."
+        }
+      },
+      {
+        "id": "node-backup",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 870
+        },
+        "data": {
+          "label": "AWS Backup plan exam-a3-5y",
+          "serviceId": "backup",
+          "category": "Management & Governance",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "daily": "RDS, 35-day warm retention",
+            "yearly": "RDS copy to cold storage, kept 5 years",
+            "dr": "copy to a second Region optional (S1 accepted)"
+          },
+          "notes": "Hidden cost: backup storage; supports 1 h RTO restore."
+        }
+      },
+      {
+        "id": "node-ecr",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 1055
+        },
+        "data": {
+          "label": "ECR repository exam-a3-api",
+          "serviceId": "ecr",
+          "category": "Compute",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "scanOnPush": "true",
+            "lifecycle": "keep last 10 images (~1 GB)",
+            "pull": "through NAT (endpoint rejected, C14)"
+          },
+          "notes": "ARM64 images built by the pipeline."
+        }
+      },
+      {
+        "id": "node-gha",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 1240
+        },
+        "data": {
+          "label": "GitHub Actions ✔S9 (auto-rollback)",
+          "serviceId": "github_actions",
+          "category": "Developer Tools",
+          "health": "healthy",
+          "az": "Edge / Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": false,
+          "customConfig": {
+            "trigger": "push to main / manual destroy",
+            "knobs": "DB_INSTANCE_CLASS, API_MIN_TASKS, PG_POOL_MAX, WAF_RATE_LIMIT variables",
+            "spof": "S9 REMOVED - ECS circuit breaker rolls back a bad release"
+          },
+          "notes": "Fully automated redeploy; destroy workflow avoids paying for idle test stacks."
+        }
+      },
+      {
+        "id": "node-oidc",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 1425
+        },
+        "data": {
+          "label": "IAM OIDC role exam-a3-github-deploy",
+          "serviceId": "iam_role",
+          "category": "Security, Identity & Compliance",
+          "health": "healthy",
+          "az": "Global",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "trust": "repo:<owner>/<repo>:* (both GitHub sub formats)",
+            "keys": "no stored access keys"
+          },
+          "notes": "Short-lived pipeline credentials."
+        }
+      },
+      {
+        "id": "node-tfstate",
+        "type": "serviceNode",
+        "position": {
+          "x": 2380,
+          "y": 1610
+        },
+        "data": {
+          "label": "S3 Terraform state (native locking)",
+          "serviceId": "s3",
+          "category": "Storage",
+          "health": "healthy",
+          "az": "Regional",
+          "subnet": "global",
+          "replicas": 1,
+          "multiAz": true,
+          "customConfig": {
+            "bucket": "exam-a3-tfstate versioned, encrypted",
+            "lock": "S3 use_lockfile (DynamoDB table removed, C20)"
+          },
+          "notes": "Remote state for pipeline and laptop."
+        }
+      },
+      {
+        "id": "legend",
+        "type": "boundaryNode",
+        "position": {
+          "x": 0,
+          "y": 1960
+        },
+        "data": {
+          "label": "Legend - Exam platform A3: cost-optimised Singapore design, SPOF register and change log",
+          "boundaryType": "auth",
+          "width": 2760,
+          "height": 440
+        },
+        "style": {
+          "width": 2760,
+          "height": 440
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": -1
+      },
+      {
+        "id": "leg-1",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2000
+        },
+        "data": {
+          "label": "1  WALKTHROUGH 1 (W1-1..W1-13): DNS -> CloudFront Asia edge (PriceClass_200) -> WAF (campus IP set exempt) -> SPA from S3 -> Cognito JWT -> /api/* to ALB in Singapore -> Fargate task (either AZ) -> RDS Proxy -> RDS primary; autosave upsert every 30 s replicated synchronously to AZ b; submit -> SQS -> marker Lambda -> scores",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-2",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2038
+        },
+        "data": {
+          "label": "2  WALKTHROUGH 2 (W2-1..W2-6): API records submission and returns a 5-minute presigned URL -> browser PUTs 40 MB straight to S3 (SSE-KMS) -> S3 event -> SQS notify -> notify Lambda -> SES (production access) -> tutor email; lifecycle moves the file to IA (30 d) and Glacier (180 d), expiry at 5 years",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-3",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2076
+        },
+        "data": {
+          "label": "3  PEAK (load-tested 22 Nov): 3,000 students = ~5,900 req/min. BEFORE: 300 req/task target scaled 2 -> 20 tasks at 17% CPU, 4-8 min late, DB connections 8 -> 61. FIX: 3,000 req/task, pre-scale 4 tasks (2 per AZ), max 8. AFTER: 4 tasks, 28 DB connections, 17 ms server time, 0.005% errors. WAF per-IP limit blocked 95% from one IP -> campus IP set (C11)",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-4",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2114
+        },
+        "data": {
+          "label": "4  FAILURE TESTS (measured): F1 RDS failover 89 s -> 16 s API outage after 2 fixes (ALB liveness /api/live without DB; require express-async-errors so DB errors no longer crash Node), 0 saves lost | F2 AZ-a isolated: 34 s intermittent, AZ-b carried all traffic | F3 bad release: auto-rollback in 2 min, 0 s outage | F4 marker broken: 0 of 3 jobs lost (DLQ + redrive)",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-5",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2152
+        },
+        "data": {
+          "label": "5  COST (USD, Singapore, AWS Pricing Calculator 21 Nov 2026): normal $465.74/mo, exam $518.20/mo, annual $5,693.80, avg $474.48/mo = 47% of $1,000 budget, $0.71 per student/yr. Top 3: RDS Multi-AZ $207, NAT $87, Fargate $45. Adopted: Graviton, Savings Plan, RDS RI, scheduled scaling -> ~$391/mo",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-6",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2190
+        },
+        "data": {
+          "label": "6  SPOF REGISTER: S1 Region = ACCEPTED (rebuild from Terraform + backup copy within 1 h) | S2 RDS writer = REMOVED (Multi-AZ + Proxy) | S3 NAT = REMOVED (one per AZ) | S4 API tasks = REMOVED (both AZs) | S5 ALB = REMOVED (managed, 2 AZs) | S6 CloudFront/S3/SQS/Lambda = REMOVED (managed, multi-AZ)",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-7",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2228
+        },
+        "data": {
+          "label": "7  SPOF REGISTER (cont.): S7 WAF per-IP limit behind campus NAT = REMOVED (IP set / per-user limit) | S8 SES quota = ACCEPTED/MITIGATED (production access, queued sending, results visible in app) | S9 bad release = REMOVED (circuit breaker rollback) | S10 marking Lambda = REMOVED (retries + DLQ + redrive) | S11 KMS key = ACCEPTED (7-day deletion window)",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-8",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2266
+        },
+        "data": {
+          "label": "8  CHANGE LOG vs A2: C1 us-east-1 -> ap-southeast-1 | C7 RDS class from load test (A2 lab r6g.large -> t4g.medium + RI) | C8 scheduled pre-scale | C9 Fargate ARM64, 1 vCPU/2 GB -> 0.5 vCPU/1 GB | C10 Savings Plan + RDS RI | C11 WAF campus IP set | C12 SES production access | C13 RDS Proxy added",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-9",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2304
+        },
+        "data": {
+          "label": "9  CHANGE LOG (cont.): C14 interface endpoints REMOVED (cost > NAT GB saved), S3 gateway kept | C15 single NAT REJECTED (SPOF) | C16 upload-handler Lambda + email queue merged into notify queue/Lambda (fewer parts) | C17 CloudFront PriceClass_100 -> 200 (Asia edges for Bhutan) | C18 logs 400 d -> 30 d | C19 Budgets + anomaly detection added | C20 DynamoDB lock -> S3 native lock",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      },
+      {
+        "id": "leg-10",
+        "type": "boundaryNode",
+        "position": {
+          "x": 20,
+          "y": 2342
+        },
+        "data": {
+          "label": "10  CI/CD and IaC: every resource in Terraform; push to main -> OIDC -> terraform apply -> arm64 image to ECR -> ECS rolling deploy with circuit breaker -> S3 sync + invalidation -> smoke test; GitHub variables tune DB class, task minimum, pool size and WAF limit for load-test fix/re-test; destroy workflow stops spend after testing",
+          "boundaryType": "auth",
+          "width": 2720,
+          "height": 30
+        },
+        "style": {
+          "width": 2720,
+          "height": 30
+        },
+        "draggable": true,
+        "selectable": true,
+        "zIndex": 0
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "source": "node-student",
+        "target": "node-r53",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-1 DNS",
+          "stepNumber": 1,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 resolve exam domain"
+        }
+      },
+      {
+        "id": "e2",
+        "source": "node-r53",
+        "target": "node-cf",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-2 alias",
+          "stepNumber": 2,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 alias to CloudFront (nearest Asia edge, PriceClass_200)"
+        }
+      },
+      {
+        "id": "e3",
+        "source": "node-cf",
+        "target": "node-waf",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-3 WAF",
+          "stepNumber": 3,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 inspect; campus IP set exempt from per-IP limit"
+        }
+      },
+      {
+        "id": "e4",
+        "source": "node-cf",
+        "target": "node-s3-web",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-4 HTTPS GET /",
+          "stepNumber": 4,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 SPA from edge cache / S3 via OAC"
+        }
+      },
+      {
+        "id": "e5",
+        "source": "node-student",
+        "target": "node-cognito",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-5 sign-in",
+          "stepNumber": 5,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 sign in, JWT with group claim"
+        }
+      },
+      {
+        "id": "e6",
+        "source": "node-cf",
+        "target": "node-alb",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-6 GET /api/exams/{id}",
+          "stepNumber": 6,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 /api/* to ALB in Singapore (caching off)"
+        }
+      },
+      {
+        "id": "e7",
+        "source": "node-alb",
+        "target": "node-ecs-a",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-7 HTTP 8080",
+          "stepNumber": 7,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 healthy task in either AZ"
+        }
+      },
+      {
+        "id": "e8",
+        "source": "node-ecs-a",
+        "target": "node-proxy",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-8 PostgreSQL 5432 TLS",
+          "stepNumber": 8,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 5000,
+          "relationship": "request",
+          "label": "W1 load exam; PUT answers every 30 s = upsert"
+        }
+      },
+      {
+        "id": "e9",
+        "source": "node-proxy",
+        "target": "node-rds",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-9 pooled connection",
+          "stepNumber": 9,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 5000,
+          "relationship": "request",
+          "label": "W1 pooled connections to current primary"
+        }
+      },
+      {
+        "id": "e10",
+        "source": "node-rds",
+        "target": "node-rds-standby",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-10 sync replication",
+          "stepNumber": 10,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "W1 commit copied to AZ b before ack",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e11",
+        "source": "node-ecs-a",
+        "target": "node-q-mark",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-11 SQS SendMessage",
+          "stepNumber": 11,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 on submit, enqueue marking job"
+        }
+      },
+      {
+        "id": "e12",
+        "source": "node-q-mark",
+        "target": "node-l-mark",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-12 event source mapping",
+          "stepNumber": 12,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 Lambda polls queue"
+        }
+      },
+      {
+        "id": "e13",
+        "source": "node-l-mark",
+        "target": "node-proxy",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "W1-13 write scores",
+          "stepNumber": 13,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W1 MCQ scores saved via proxy"
+        }
+      },
+      {
+        "id": "e14",
+        "source": "node-ecs-b",
+        "target": "node-s3-up",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-1 presign PUT",
+          "stepNumber": 14,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 API checks role, records submission, returns 5-min presigned URL"
+        }
+      },
+      {
+        "id": "e15",
+        "source": "node-student",
+        "target": "node-s3-up",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-2 HTTPS PUT",
+          "stepNumber": 15,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 browser uploads 40 MB straight to S3"
+        }
+      },
+      {
+        "id": "e16",
+        "source": "node-s3-up",
+        "target": "node-q-notify",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-3 ObjectCreated",
+          "stepNumber": 16,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 S3 event to notify queue"
+        }
+      },
+      {
+        "id": "e17",
+        "source": "node-q-notify",
+        "target": "node-l-notify",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-4 event source mapping",
+          "stepNumber": 17,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 notify Lambda triggered"
+        }
+      },
+      {
+        "id": "e18",
+        "source": "node-l-notify",
+        "target": "node-ses",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-5 SES SendEmail",
+          "stepNumber": 18,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 email to tutor"
+        }
+      },
+      {
+        "id": "e19",
+        "source": "node-ses",
+        "target": "node-tutor",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "W2-6 SMTP/TLS",
+          "stepNumber": 19,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "W2 tutor notified"
+        }
+      },
+      {
+        "id": "e20",
+        "source": "node-admin",
+        "target": "node-cf",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "HTTPS",
+          "stepNumber": 20,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "admin: users and exam timetable"
+        }
+      },
+      {
+        "id": "e21",
+        "source": "node-tutor",
+        "target": "node-cf",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "HTTPS",
+          "stepNumber": 21,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "tutor creates exams, releases results"
+        }
+      },
+      {
+        "id": "e22",
+        "source": "node-cf",
+        "target": "node-acm",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "TLS cert",
+          "stepNumber": 22,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "viewer certificate",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e23",
+        "source": "node-alb",
+        "target": "node-alb-sg",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "SecurityGroupIds",
+          "stepNumber": 23,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "exam-a3-alb",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e24",
+        "source": "node-alb",
+        "target": "node-pub-a",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetIds",
+          "stepNumber": 24,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "ALB node in AZ a",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e25",
+        "source": "node-alb",
+        "target": "node-pub-b",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetIds",
+          "stepNumber": 25,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "ALB node in AZ b",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e26",
+        "source": "node-nat-a",
+        "target": "node-pub-a",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "NAT placement",
+          "stepNumber": 26,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "NAT in public subnet a",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e27",
+        "source": "node-nat-b",
+        "target": "node-pub-b",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "NAT placement",
+          "stepNumber": 27,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "NAT in public subnet b",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e28",
+        "source": "node-ecs-a",
+        "target": "node-app-a",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetIds",
+          "stepNumber": 28,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "tasks in app subnet a",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e29",
+        "source": "node-ecs-b",
+        "target": "node-app-b",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetIds",
+          "stepNumber": 29,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "tasks in app subnet b",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e30",
+        "source": "node-ecs-a",
+        "target": "node-app-sg",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "SecurityGroupIds",
+          "stepNumber": 30,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "exam-a3-api",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e31",
+        "source": "node-app-a",
+        "target": "node-nat-a",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "route 0.0.0.0/0",
+          "stepNumber": 31,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "outbound via NAT a (image pulls, logs, SES)",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e32",
+        "source": "node-app-b",
+        "target": "node-nat-b",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "route 0.0.0.0/0",
+          "stepNumber": 32,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "outbound via NAT b",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e33",
+        "source": "node-ecs-a",
+        "target": "node-vpce",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "S3 gateway",
+          "stepNumber": 33,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "S3 traffic without NAT charges",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e34",
+        "source": "node-asg",
+        "target": "node-ecs-a",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "scale out",
+          "stepNumber": 34,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "scheduled pre-scale 30 min before sitting"
+        }
+      },
+      {
+        "id": "e35",
+        "source": "node-asg",
+        "target": "node-ecs-b",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "scale out",
+          "stepNumber": 35,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "same service, both AZs"
+        }
+      },
+      {
+        "id": "e36",
+        "source": "node-rds",
+        "target": "node-data-a",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetGroup",
+          "stepNumber": 36,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "primary in db subnet a",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e37",
+        "source": "node-rds-standby",
+        "target": "node-data-b",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "SubnetGroup",
+          "stepNumber": 37,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "standby in db subnet b",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e38",
+        "source": "node-rds",
+        "target": "node-db-sg",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "SecurityGroupIds",
+          "stepNumber": 38,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "5432 from proxy only",
+          "traversal": "dependency",
+          "dependencyRequired": true
+        }
+      },
+      {
+        "id": "e39",
+        "source": "node-db-sg",
+        "target": "node-app-sg",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "ingress TCP 5432",
+          "stepNumber": 39,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "source = proxy/app SG, not a CIDR"
+        }
+      },
+      {
+        "id": "e40",
+        "source": "node-proxy",
+        "target": "node-secrets",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "GetSecretValue",
+          "stepNumber": 40,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "proxy authenticates with managed secret"
+        }
+      },
+      {
+        "id": "e41",
+        "source": "node-kms",
+        "target": "node-rds",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "encrypt at rest",
+          "stepNumber": 41,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "RDS storage and snapshots",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e42",
+        "source": "node-kms",
+        "target": "node-s3-up",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "SSE-KMS",
+          "stepNumber": 42,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "uploads encrypted (Bucket Key)",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e43",
+        "source": "node-q-mark",
+        "target": "node-dlq",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "redrive",
+          "stepNumber": 43,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "after 5 failed receives"
+        }
+      },
+      {
+        "id": "e44",
+        "source": "node-q-notify",
+        "target": "node-dlq",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "redrive",
+          "stepNumber": 44,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "after 5 failed receives"
+        }
+      },
+      {
+        "id": "e45",
+        "source": "node-dlq",
+        "target": "node-cw",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "metric",
+          "stepNumber": 45,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "DLQ depth alarm"
+        }
+      },
+      {
+        "id": "e46",
+        "source": "node-l-dbinit",
+        "target": "node-proxy",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "schema + seed",
+          "stepNumber": 46,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "runs on each deploy"
+        }
+      },
+      {
+        "id": "e47",
+        "source": "node-backup",
+        "target": "node-rds",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "backup plan",
+          "stepNumber": 47,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "daily + yearly 5-year copy"
+        }
+      },
+      {
+        "id": "e48",
+        "source": "node-ecs-a",
+        "target": "node-cw",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "logs and metrics",
+          "stepNumber": 48,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "awslogs, Container Insights (30-day retention)"
+        }
+      },
+      {
+        "id": "e49",
+        "source": "node-alb",
+        "target": "node-cw",
+        "sourceHandle": "right",
+        "targetHandle": "left",
+        "type": "custom",
+        "data": {
+          "protocol": "metrics",
+          "stepNumber": 49,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "5xx, p95 latency, healthy hosts"
+        }
+      },
+      {
+        "id": "e50",
+        "source": "node-cw",
+        "target": "node-sns",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "alarm action",
+          "stepNumber": 50,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "notify ops"
+        }
+      },
+      {
+        "id": "e51",
+        "source": "node-budget",
+        "target": "node-sns",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "budget alert",
+          "stepNumber": 51,
+          "interactionType": "asynchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "80% / 100% of USD 1,000"
+        }
+      },
+      {
+        "id": "e52",
+        "source": "node-gha",
+        "target": "node-oidc",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "AssumeRoleWithWebIdentity",
+          "stepNumber": 52,
+          "interactionType": "synchronous",
+          "isCriticalDependency": true,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "OIDC, no stored keys"
+        }
+      },
+      {
+        "id": "e53",
+        "source": "node-gha",
+        "target": "node-tfstate",
+        "sourceHandle": "bottom",
+        "targetHandle": "top",
+        "type": "custom",
+        "data": {
+          "protocol": "terraform init/apply",
+          "stepNumber": 53,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "remote state, S3 native lock"
+        }
+      },
+      {
+        "id": "e54",
+        "source": "node-gha",
+        "target": "node-ecr",
+        "sourceHandle": "top",
+        "targetHandle": "bottom",
+        "type": "custom",
+        "data": {
+          "protocol": "docker push (arm64)",
+          "stepNumber": 54,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "image per commit"
+        }
+      },
+      {
+        "id": "e55",
+        "source": "node-ecr",
+        "target": "node-ecs-a",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "image pull",
+          "stepNumber": 55,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "dependency",
+          "label": "pulled via NAT",
+          "traversal": "dependency",
+          "dependencyRequired": false
+        }
+      },
+      {
+        "id": "e56",
+        "source": "node-gha",
+        "target": "node-s3-web",
+        "sourceHandle": "left",
+        "targetHandle": "right",
+        "type": "custom",
+        "data": {
+          "protocol": "aws s3 sync",
+          "stepNumber": 56,
+          "interactionType": "synchronous",
+          "isCriticalDependency": false,
+          "timeoutMs": 3000,
+          "relationship": "request",
+          "label": "frontend + CloudFront invalidation"
+        }
+      }
+    ],
+    "scenario": {
+      "id": "exam-a3-singapore",
+      "name": "Student opens an exam and autosaves at peak; 40 MB upload notifies the tutor",
+      "method": "GET",
+      "path": "/api/exams/{id}",
+      "startNodeId": "node-student",
+      "trafficLevel": "normal"
+    },
+    "simulationResult": null,
+    "activeFailures": [],
+    "activeLabReference": null,
+    "activeChallengeId": null,
+    "challengeResult": null,
+    "appMode": "design",
+    "selectedNodeId": null,
+    "selectedEdgeId": null,
+    "activeStepIndex": null,
+    "playbackSpeed": 1,
+    "highlightTaskFlow": false,
+    "showNaclSideColumn": false,
+    "viewport": null
+  }
+}
