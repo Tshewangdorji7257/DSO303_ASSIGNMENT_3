@@ -114,7 +114,7 @@ architecture/aws-architecture-diagram (14).png
 | S8 | SES sending quota | **Accepted/mitigated**: production access, queued sending |
 | S9 | Bad release | **Removed**: ECS circuit-breaker rollback (measured in F3) |
 | S10 | Marking Lambda | **Removed**: retries + DLQ + redrive (measured in F4) |
-| S11 | KMS key deletion | ⚠ **Accepted**: 7-day deletion window |
+| S11 | KMS key deletion | **Accepted**: 7-day deletion window |
 
 **Key changes from Assignment 2** (full list C1–C26 in [`architecture/CHANGELOG.md`](architecture/CHANGELOG.md)):
 
