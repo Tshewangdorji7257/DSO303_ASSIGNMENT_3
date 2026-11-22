@@ -51,7 +51,7 @@ resource "aws_lb_target_group" "api" {
   vpc_id               = aws_vpc.main.id
   deregistration_delay = 30
   health_check {
-    path                = "/api/health"
+    path                = "/api/live"
     matcher             = "200"
     interval            = 15
     healthy_threshold   = 2

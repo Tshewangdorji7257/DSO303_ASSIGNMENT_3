@@ -147,3 +147,22 @@ Then:
 
 Add GitHub Variables
 ![alt text](image-40.png)
+
+he push runs the deploya and When it's green, check ECS → exam-a3-api → Running tasks = 4
+![alt text](image-41.png)
+
+
+4. AFTER test. Use the same command, but export to the after file:
+![alt text](image-42.png)
+
+Pull the AFTER metrics
+
+This works in a new or old PowerShell window. It takes the last 30 minutes automatically and prints the table:
+![alt text](image-43.png)
+
+Next: failure tests (Phase 4, about 1.5 hours)
+
+The stack is ready, and the probe script is in scripts\probe.ps1. Start with F1, the RDS failover. It's the most visual, so it's also the best one for your video.
+
+Open two PowerShell windows. In window 1, start the probe:
+![alt text](image-44.png)

@@ -15,6 +15,10 @@ const sqs = new SQSClient({});
 // DEMO ONLY: in production the ALB/Cognito (or aws-jwt-verify) supplies the verified user id.
 const user = (req) => req.headers["x-user-id"] || "demo-student";
 
+// Liveness for the ALB: does NOT touch the database, so a DB failover does not make ECS replace every task
+app.get("/api/live", (_req, res) => res.send("ok"));
+// Without this handler, an idle pg connection dropped during a failover can crash Node (exit code 1)
+pool.on("error", (e) => console.error("pg pool error:", e.message));
 app.get("/api/health", async (_req, res) => {
   try { await pool.query("SELECT 1"); res.send("ok"); }
   catch (e) { console.error("health: db error:", e.message); res.status(503).send("db unavailable"); }
